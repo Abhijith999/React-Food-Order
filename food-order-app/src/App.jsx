@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import Header from './Components/Header.jsx'
 import Meals from './Components/Meals.jsx'
+import {CartContextProvider} from './Store/CartContext.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
+    <CartContextProvider>
       <Header/>
       <Meals/>
-    </>
+    </CartContextProvider>
   )
 }
 
