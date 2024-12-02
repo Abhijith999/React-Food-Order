@@ -4,7 +4,7 @@ function Button({children, textOnly, className, ...props}){
     cssClass+" "+className;
 
     return(
-        <button className={cssClass}>
+        <button className={cssClass} {...props}>
             {children}
         </button>
     )
