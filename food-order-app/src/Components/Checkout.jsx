@@ -5,6 +5,14 @@ import { priceFormatter } from "../Utils/formatter.js";
 import Input from "./UI/Input.jsx";
 import Button from "./UI/Button.jsx";
 import { useContext } from "react";
+import useHttp from "../Hooks/useHttp.js";
+
+const requestConfig = {
+    method:'POST',
+    headers:{
+        'Content-Type':'application/json'
+    }
+}
 
 function Checkout(){
 
@@ -13,6 +21,8 @@ function Checkout(){
     const TotalCartPrice = cartCtx.item.reduce((totalPrice, item)=>{
         return totalPrice + item.price*item.quantity;
     }, 0)
+
+    const {responseData, isLoading, error, sendRequest} = useHttp('http://localhost:3000/orders',requestConfig)
 
     function handleClose(){
         userProgressCtx.hideCheckout()
@@ -24,18 +34,12 @@ function Checkout(){
         const formData = new FormData(event.target)
         const customerData = Object.fromEntries(formData.entries());
 
-        fetch('http://localhost:3000/orders', {
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
+        sendRequest(JSON.stringify({
+            order: {
+              items: cartCtx.items,
+              customer: customerData,
             },
-            body:JSON.stringify({
-                order:{
-                    items:cartCtx.item,
-                    customer:customerData
-                }
-            })
-        })
+          }))
     }
 
     return(
