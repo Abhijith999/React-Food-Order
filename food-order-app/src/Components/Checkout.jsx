@@ -6,6 +6,7 @@ import Input from "./UI/Input.jsx";
 import Button from "./UI/Button.jsx";
 import { useContext } from "react";
 import useHttp from "../Hooks/useHttp.js";
+import Error from "./Error.jsx";
 
 const requestConfig = {
     method:'POST',
@@ -22,10 +23,16 @@ function Checkout(){
         return totalPrice + item.price*item.quantity;
     }, 0)
 
-    const {responseData, isLoading, error, sendRequest} = useHttp('http://localhost:3000/orders',requestConfig)
+    const {responseData, isLoading:isSending, error, sendRequest, clearData} = useHttp('http://localhost:3000/orders', requestConfig,)
 
     function handleClose(){
         userProgressCtx.hideCheckout()
+    }
+
+    function handleClearCart(){
+        userProgressCtx.hideCheckout()
+        cartCtx.clearCart()
+        clearData()
     }
 
     function handleFormSubmit(event){
@@ -36,10 +43,30 @@ function Checkout(){
 
         sendRequest(JSON.stringify({
             order: {
-              items: cartCtx.items,
+              items: cartCtx.item,
               customer: customerData,
             },
-          }))
+        }))
+    }
+
+    let actions = <>
+        <Button type='button' textOnly onClick={handleClose}>Close</Button>
+        <Button>Submit Order</Button>
+    </>
+
+    if(isSending){
+        actions = <span>...Accepting order</span>
+    }
+
+    if(responseData && !error){
+        return <Modal open={userProgressCtx.progress === 'checkout'} onClose={handleClose}>
+            <h2>Success!</h2>
+            <p>Your order submitted successfully!</p>
+            <p>We will deliver shortly</p>
+            <p className="modal-actions">
+                <Button onClick={handleClearCart}>Okay</Button>
+            </p>
+        </Modal>
     }
 
     return(
@@ -56,9 +83,11 @@ function Checkout(){
                     <Input label='Postal Code' id='postal-code' type='text'/>
                     <Input label='City' id='city' type='text'/>
                 </div>
+
+                {error && <Error title='Something went wrong' message={error}/>}
+
                 <div className="modal-actions">
-                    <Button type='button' textOnly onClick={handleClose}>Close</Button>
-                    <Button>Submit Order</Button>
+                    {actions}
                 </div>
             </form>
         </Modal>

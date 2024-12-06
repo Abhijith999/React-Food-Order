@@ -38,6 +38,9 @@ function cartReducer(state, action){
         }
         return {...state, items:previousItems}
     }
+    else if(action.type === 'CLEAR_CART'){
+        return {...state, items:[]}
+    }
     return state;
 }
 
@@ -52,10 +55,15 @@ function removeItem(id){
     dispatcher({type:'REMOVE_ITEM', id})
 }
 
+function clearCart(){
+    dispatcher({type:'CLEAR_CART'})
+}
+
 const cartContext = {
     item:currentCart.items,
     addItem,
     removeItem,
+    clearCart,
 }
 console.log(cartContext)
 
